@@ -41,7 +41,7 @@ pub struct MagicLinkParams {
 #[debug_handler]
 async fn register(
     State(ctx): State<AppContext>,
-    Json(params): Json<RegisterParams>,
+    Form(params): Form<RegisterParams>,
 ) -> Result<Response> {
     let res = users::Model::create_with_password(&ctx.db, &params).await;
 
@@ -53,7 +53,7 @@ async fn register(
                 user_email = &params.email,
                 "could not register user",
             );
-            return format::json(());
+            return Ok(Redirect::to("/api/auth/register?status=error").into_response());
         }
     };
 
@@ -64,7 +64,7 @@ async fn register(
 
     AuthMailer::send_welcome(&ctx, &user).await?;
 
-    format::json(())
+    Ok(Redirect::to("/api/auth/login").into_response())
 }
 
 /// Verify register user. if the user not verified his email, he can't login to
@@ -129,7 +129,7 @@ async fn reset(State(ctx): State<AppContext>, Json(params): Json<ResetParams>) -
 #[debug_handler]
 async fn login(State(ctx): State<AppContext>, Form(params): Form<LoginParams>) -> Result<Response> {
     let Ok(user) = users::Model::find_by_email(&ctx.db, &params.email).await else {
-        return unauthorized("unauthorized!");
+        return Ok(Redirect::to("/api/auth/login?nouser").into_response());
     };
 
     if !user.verify_password(&params.password) {
@@ -221,10 +221,15 @@ async fn render_login_form(ViewEngine(v): ViewEngine<TeraView>) -> Result<impl I
     crate::views::auth::login_form(&v)
 }
 
+async fn render_signup_form(ViewEngine(v): ViewEngine<TeraView>) -> Result<impl IntoResponse> {
+    crate::views::auth::signup_form(&v)
+}
+
 pub fn routes() -> Routes {
     Routes::new()
         .prefix("/api/auth")
         .add("/register", post(register))
+        .add("/register", get(render_signup_form))
         .add("/verify/{token}", get(verify))
         .add("/login", get(render_login_form))
         .add("/login", post(login))
