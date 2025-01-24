@@ -29,6 +29,7 @@ impl Initializer for ViewEngineInitializer {
                 .build()
                 .map_err(|e| Error::string(&e.to_string()))?;
             #[cfg(debug_assertions)]
+            #[allow(clippy::expect_used)]
             tera_engine
                 .tera
                 .lock()
