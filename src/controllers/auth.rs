@@ -16,7 +16,7 @@ use cookie::{Cookie, SameSite};
 use loco_rs::prelude::*;
 use regex::Regex;
 use serde::{Deserialize, Serialize};
-use std::{str::FromStr, sync::OnceLock};
+use std::sync::OnceLock;
 
 pub static EMAIL_DOMAIN_RE: OnceLock<Regex> = OnceLock::new();
 
@@ -148,9 +148,11 @@ async fn login(State(ctx): State<AppContext>, Form(params): Form<LoginParams>) -
         .secure(true)
         .http_only(true);
     let mut response = Redirect::to("/home").into_response();
+    #[allow(clippy::expect_used)]
     response.headers_mut().insert(
         SET_COOKIE,
-        HeaderValue::from_str(auth_cookie.to_string().as_str()).unwrap(),
+        HeaderValue::from_str(auth_cookie.to_string().as_str())
+            .expect("Can't construct auth cookie header, crashing!"),
     );
 
     Ok(response.into_response())
@@ -216,7 +218,7 @@ async fn magic_link_verify(
 }
 
 async fn render_login_form(ViewEngine(v): ViewEngine<TeraView>) -> Result<impl IntoResponse> {
-    crate::views::auth::login_form(v)
+    crate::views::auth::login_form(&v)
 }
 
 pub fn routes() -> Routes {

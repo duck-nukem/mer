@@ -41,6 +41,6 @@ impl CurrentResponse {
     }
 }
 
-pub fn login_form(v: impl ViewRenderer) -> Result<impl IntoResponse> {
-    format::render().view(&v, "auth/login.html", data!({}))
+pub fn login_form(v: &impl ViewRenderer) -> Result<impl IntoResponse> {
+    format::render().view(v, "auth/login.html", data!({}))
 }
