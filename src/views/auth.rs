@@ -1,6 +1,7 @@
-use serde::{Deserialize, Serialize};
-
 use crate::models::_entities::users;
+use axum::response::IntoResponse;
+use loco_rs::prelude::*;
+use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct LoginResponse {
@@ -38,4 +39,8 @@ impl CurrentResponse {
             email: user.email.clone(),
         }
     }
+}
+
+pub fn login_form(v: impl ViewRenderer) -> Result<impl IntoResponse> {
+    format::render().view(&v, "auth/login.html", data!({}))
 }

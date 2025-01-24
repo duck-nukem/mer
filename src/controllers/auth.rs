@@ -199,9 +199,14 @@ async fn magic_link_verify(
     format::json(LoginResponse::new(&user, &token))
 }
 
+async fn render_login_form(ViewEngine(v): ViewEngine<TeraView>) -> Result<impl IntoResponse> {
+    crate::views::auth::login_form(v)
+}
+
 pub fn routes() -> Routes {
     Routes::new()
         .prefix("/api/auth")
+        .add("/login", get(render_login_form))
         .add("/register", post(register))
         .add("/verify/{token}", get(verify))
         .add("/login", post(login))
