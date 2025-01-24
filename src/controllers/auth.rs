@@ -6,11 +6,17 @@ use crate::{
     },
     views::auth::{CurrentResponse, LoginResponse},
 };
-use axum::debug_handler;
+use axum::{
+    debug_handler,
+    http::{header::SET_COOKIE, HeaderValue},
+    response::Redirect,
+    Form,
+};
+use cookie::{Cookie, SameSite};
 use loco_rs::prelude::*;
 use regex::Regex;
 use serde::{Deserialize, Serialize};
-use std::sync::OnceLock;
+use std::{str::FromStr, sync::OnceLock};
 
 pub static EMAIL_DOMAIN_RE: OnceLock<Regex> = OnceLock::new();
 
@@ -120,14 +126,13 @@ async fn reset(State(ctx): State<AppContext>, Json(params): Json<ResetParams>) -
     format::json(())
 }
 
-/// Creates a user login and returns a token
 #[debug_handler]
-async fn login(State(ctx): State<AppContext>, Json(params): Json<LoginParams>) -> Result<Response> {
-    let user = users::Model::find_by_email(&ctx.db, &params.email).await?;
+async fn login(State(ctx): State<AppContext>, Form(params): Form<LoginParams>) -> Result<Response> {
+    let Ok(user) = users::Model::find_by_email(&ctx.db, &params.email).await else {
+        return unauthorized("unauthorized!");
+    };
 
-    let valid = user.verify_password(&params.password);
-
-    if !valid {
+    if !user.verify_password(&params.password) {
         return unauthorized("unauthorized!");
     }
 
@@ -137,7 +142,18 @@ async fn login(State(ctx): State<AppContext>, Json(params): Json<LoginParams>) -
         .generate_jwt(&jwt_secret.secret, &jwt_secret.expiration)
         .or_else(|_| unauthorized("unauthorized!"))?;
 
-    format::json(LoginResponse::new(&user, &token))
+    let auth_cookie = Cookie::build(("jwt", token))
+        .path("/")
+        .same_site(SameSite::Strict)
+        .secure(true)
+        .http_only(true);
+    let mut response = Redirect::to("/home").into_response();
+    response.headers_mut().insert(
+        SET_COOKIE,
+        HeaderValue::from_str(auth_cookie.to_string().as_str()).unwrap(),
+    );
+
+    Ok(response.into_response())
 }
 
 #[debug_handler]
@@ -166,7 +182,7 @@ async fn magic_link(
 ) -> Result<Response> {
     let Ok(user) = users::Model::find_by_email(&ctx.db, &params.email).await else {
         // we don't want to expose our users email. if the email is invalid we still
-        // returning success to the caller
+        // return success to the caller
         tracing::debug!(email = params.email, "user not found by email");
         return format::empty_json();
     };
@@ -184,7 +200,7 @@ async fn magic_link_verify(
 ) -> Result<Response> {
     let Ok(user) = users::Model::find_by_magic_token(&ctx.db, &token).await else {
         // we don't want to expose our users email. if the email is invalid we still
-        // returning success to the caller
+        // return success to the caller - WTF? How is unauthorized a success? TODO: Improve this
         return unauthorized("unauthorized!");
     };
 
@@ -206,9 +222,9 @@ async fn render_login_form(ViewEngine(v): ViewEngine<TeraView>) -> Result<impl I
 pub fn routes() -> Routes {
     Routes::new()
         .prefix("/api/auth")
-        .add("/login", get(render_login_form))
         .add("/register", post(register))
         .add("/verify/{token}", get(verify))
+        .add("/login", get(render_login_form))
         .add("/login", post(login))
         .add("/forgot", post(forgot))
         .add("/reset", post(reset))
