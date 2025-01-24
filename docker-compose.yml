@@ -14,5 +14,12 @@ services:
       retries: 5
     restart:
       always
+  smtp:
+    image: maildev/maildev:latest
+    ports:
+      - "1080:1080"
+      - "1025:1025"
+    healthcheck:
+      test: [ "CMD-SHELL", "echo ok" ]
 volumes:
   postgres_data:
