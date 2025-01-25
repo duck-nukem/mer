@@ -8,3 +8,5 @@ parameter = text with a { $param }
 parameter2 = text one { $param } second { $multi-word-param }
 email = text with an EMAIL("example@example.org")
 fallback = this should fall back
+
+invalid_credentials = Invalid username or password

@@ -8,6 +8,7 @@ use crate::{
 };
 use axum::{
     debug_handler,
+    extract::Query,
     http::{header::SET_COOKIE, HeaderValue},
     response::Redirect,
     Form,
@@ -17,6 +18,8 @@ use loco_rs::prelude::*;
 use regex::Regex;
 use serde::{Deserialize, Serialize};
 use std::sync::OnceLock;
+
+use super::views::{LoginPageState, LoginPageStatus};
 
 pub static EMAIL_DOMAIN_RE: OnceLock<Regex> = OnceLock::new();
 
@@ -67,14 +70,14 @@ pub(super) async fn register(
     Ok(Redirect::to("/api/auth/login").into_response())
 }
 
-/// Verify register user. if the user not verified his email, he can't login to
-/// the system.
 #[debug_handler]
-pub(super) async fn verify(
+pub(super) async fn verify_email_via_token(
     State(ctx): State<AppContext>,
     Path(token): Path<String>,
 ) -> Result<Response> {
-    let user = users::Model::find_by_verification_token(&ctx.db, &token).await?;
+    let Ok(user) = users::Model::find_by_verification_token(&ctx.db, &token).await else {
+        return Ok(Redirect::to("/api/auth/login?error=incorrect").into_response());
+    };
 
     if user.email_verified_at.is_some() {
         tracing::info!(pid = user.pid.to_string(), "user already verified");
@@ -84,7 +87,7 @@ pub(super) async fn verify(
         tracing::info!(pid = user.pid.to_string(), "user verified");
     }
 
-    format::json(())
+    Ok(Redirect::to("/api/auth/login?verification=success").into_response())
 }
 
 /// In case the user forgot his password  this endpoints generate a forgot token
@@ -135,9 +138,10 @@ pub(super) async fn reset(
 #[allow(clippy::unused_async)]
 pub(super) async fn render_login_form(
     ViewEngine(v): ViewEngine<TeraView>,
+    Query(query_params): Query<LoginPageState>,
     form: Option<&Form<LoginParams>>,
 ) -> Result<impl IntoResponse> {
-    super::views::login_form(&v, form)
+    super::views::login_form(&v, query_params, form)
 }
 
 #[debug_handler]
@@ -147,12 +151,20 @@ pub(super) async fn login(
     Form(params): Form<LoginParams>,
 ) -> Result<Response> {
     let Ok(user) = users::Model::find_by_email(&ctx.db, &params.email).await else {
-        return Ok(render_login_form(ViewEngine(v), Some(&Form(params)))
-            .await
-            .into_response());
+        return Ok(render_login_form(
+            ViewEngine(v),
+            Query(LoginPageState {
+                status: Some(LoginPageStatus::ERROR),
+                message: Some(String::from("invalid_credentials")),
+            }),
+            Some(&Form(params)),
+        )
+        .await
+        .into_response());
     };
 
-    if !user.verify_password(&params.password) {
+    let is_password_correct = user.verify_password(&params.password);
+    if !is_password_correct {
         return unauthorized("unauthorized!");
     }
 

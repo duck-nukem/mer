@@ -2,6 +2,7 @@ use crate::models::{_entities::users, users::LoginParams};
 use axum::response::IntoResponse;
 use loco_rs::prelude::*;
 use serde::{Deserialize, Serialize};
+use serde_with::skip_serializing_none;
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct LoginResponse {
@@ -41,11 +42,34 @@ impl CurrentResponse {
     }
 }
 
+#[derive(Debug, Deserialize, Serialize)]
+pub enum LoginPageStatus {
+    SUCCESS,
+    ERROR,
+}
+
+impl LoginPageStatus {
+    pub fn as_str(&self) -> &'static str {
+        match &self {
+            LoginPageStatus::SUCCESS => "success",
+            LoginPageStatus::ERROR => "error",
+        }
+    }
+}
+
+#[skip_serializing_none]
+#[derive(Debug, Deserialize, Serialize)]
+pub struct LoginPageState {
+    pub status: Option<LoginPageStatus>,
+    pub message: Option<String>,
+}
+
 pub(super) fn login_form(
     v: &impl ViewRenderer,
+    page_state: LoginPageState,
     form: Option<&Form<LoginParams>>,
 ) -> Result<impl IntoResponse> {
-    let template_data = form.as_ref().map_or_else(
+    let form_state = form.as_ref().map_or_else(
         || LoginParams {
             email: String::new(),
             password: String::new(),
@@ -55,8 +79,13 @@ pub(super) fn login_form(
             password: original.password.clone(),
         },
     );
+    println!("{:?}", page_state);
 
-    format::render().view(v, "auth/login.html", template_data)
+    format::render().view(
+        v,
+        "auth/login.html",
+        data!({"form": form_state, "page_state": page_state}),
+    )
 }
 
 pub(super) fn signup_form(v: &impl ViewRenderer) -> Result<impl IntoResponse> {
