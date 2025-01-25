@@ -1,3 +1,5 @@
+.DS_Store
+
 **/config/local.yaml
 **/config/*.local.yaml
 **/config/production.yaml
