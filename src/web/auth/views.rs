@@ -24,7 +24,7 @@ impl LoginResponse {
 }
 
 #[derive(Debug, Deserialize, Serialize)]
-pub struct CurrentResponse {
+pub(super) struct CurrentResponse {
     pub pid: String,
     pub name: String,
     pub email: String,
@@ -41,7 +41,7 @@ impl CurrentResponse {
     }
 }
 
-pub fn login_form(
+pub(super) fn login_form(
     v: &impl ViewRenderer,
     form: Option<&Form<LoginParams>>,
 ) -> Result<impl IntoResponse> {
@@ -59,6 +59,6 @@ pub fn login_form(
     format::render().view(v, "auth/login.html", template_data)
 }
 
-pub fn signup_form(v: &impl ViewRenderer) -> Result<impl IntoResponse> {
+pub(super) fn signup_form(v: &impl ViewRenderer) -> Result<impl IntoResponse> {
     format::render().view(v, "auth/signup.html", data!({}))
 }

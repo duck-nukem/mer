@@ -4,7 +4,7 @@ use crate::{
         _entities::users,
         users::{LoginParams, RegisterParams},
     },
-    views::auth::{CurrentResponse, LoginResponse},
+    web::auth::views::{CurrentResponse, LoginResponse},
 };
 use axum::{
     debug_handler,
@@ -39,7 +39,7 @@ pub struct MagicLinkParams {
 /// Register function creates a new user with the given parameters and sends a
 /// welcome email to the user
 #[debug_handler]
-async fn register(
+pub(super) async fn register(
     State(ctx): State<AppContext>,
     Form(params): Form<RegisterParams>,
 ) -> Result<Response> {
@@ -70,7 +70,10 @@ async fn register(
 /// Verify register user. if the user not verified his email, he can't login to
 /// the system.
 #[debug_handler]
-async fn verify(State(ctx): State<AppContext>, Path(token): Path<String>) -> Result<Response> {
+pub(super) async fn verify(
+    State(ctx): State<AppContext>,
+    Path(token): Path<String>,
+) -> Result<Response> {
     let user = users::Model::find_by_verification_token(&ctx.db, &token).await?;
 
     if user.email_verified_at.is_some() {
@@ -89,7 +92,7 @@ async fn verify(State(ctx): State<AppContext>, Path(token): Path<String>) -> Res
 /// returning a valid request for for security reasons (not exposing users DB
 /// list).
 #[debug_handler]
-async fn forgot(
+pub(super) async fn forgot(
     State(ctx): State<AppContext>,
     Json(params): Json<ForgotParams>,
 ) -> Result<Response> {
@@ -111,7 +114,10 @@ async fn forgot(
 
 /// reset user password by the given parameters
 #[debug_handler]
-async fn reset(State(ctx): State<AppContext>, Json(params): Json<ResetParams>) -> Result<Response> {
+pub(super) async fn reset(
+    State(ctx): State<AppContext>,
+    Json(params): Json<ResetParams>,
+) -> Result<Response> {
     let Ok(user) = users::Model::find_by_reset_token(&ctx.db, &params.token).await else {
         // we don't want to expose our users email. if the email is invalid we still
         // returning success to the caller
@@ -127,15 +133,15 @@ async fn reset(State(ctx): State<AppContext>, Json(params): Json<ResetParams>) -
 }
 
 #[allow(clippy::unused_async)]
-async fn render_login_form(
+pub(super) async fn render_login_form(
     ViewEngine(v): ViewEngine<TeraView>,
     form: Option<&Form<LoginParams>>,
 ) -> Result<impl IntoResponse> {
-    crate::views::auth::login_form(&v, form)
+    super::views::login_form(&v, form)
 }
 
 #[debug_handler]
-async fn login(
+pub(super) async fn login(
     ViewEngine(v): ViewEngine<TeraView>,
     State(ctx): State<AppContext>,
     Form(params): Form<LoginParams>,
@@ -173,7 +179,7 @@ async fn login(
 }
 
 #[debug_handler]
-async fn current(auth: auth::JWT, State(ctx): State<AppContext>) -> Result<Response> {
+pub(super) async fn current(auth: auth::JWT, State(ctx): State<AppContext>) -> Result<Response> {
     let user = users::Model::find_by_pid(&ctx.db, &auth.claims.pid).await?;
     format::json(CurrentResponse::new(&user))
 }
@@ -181,18 +187,18 @@ async fn current(auth: auth::JWT, State(ctx): State<AppContext>) -> Result<Respo
 /// Magic link authentication provides a secure and passwordless way to log in to the application.
 ///
 /// # Flow
-/// 1. **Request a Magic Link**:  
-///    A registered user sends a POST request to `/magic-link` with their email.  
-///    If the email exists, a short-lived, one-time-use token is generated and sent to the user's email.  
+/// 1. **Request a Magic Link**:
+///    A registered user sends a POST request to `/magic-link` with their email.
+///    If the email exists, a short-lived, one-time-use token is generated and sent to the user's email.
 ///    For security and to avoid exposing whether an email exists, the response always returns 200, even if the email is invalid.
 ///
-/// 2. **Click the Magic Link**:  
-///    The user clicks the link (/magic-link/{token}), which validates the token and its expiration.  
-///    If valid, the server generates a JWT and responds with a [`LoginResponse`].  
+/// 2. **Click the Magic Link**:
+///    The user clicks the link (/magic-link/{token}), which validates the token and its expiration.
+///    If valid, the server generates a JWT and responds with a [`LoginResponse`].
 ///    If invalid or expired, an unauthorized response is returned.
 ///
 /// This flow enhances security by avoiding traditional passwords and providing a seamless login experience.
-async fn magic_link(
+pub(super) async fn magic_link(
     State(ctx): State<AppContext>,
     Json(params): Json<MagicLinkParams>,
 ) -> Result<Response> {
@@ -210,7 +216,7 @@ async fn magic_link(
 }
 
 /// Verifies a magic link token and authenticates the user.
-async fn magic_link_verify(
+pub(super) async fn magic_link_verify(
     Path(token): Path<String>,
     State(ctx): State<AppContext>,
 ) -> Result<Response> {
@@ -231,21 +237,8 @@ async fn magic_link_verify(
     format::json(LoginResponse::new(&user, &token))
 }
 
-async fn render_signup_form(ViewEngine(v): ViewEngine<TeraView>) -> Result<impl IntoResponse> {
-    crate::views::auth::signup_form(&v)
-}
-
-pub fn routes() -> Routes {
-    Routes::new()
-        .prefix("/api/auth")
-        .add("/register", post(register))
-        .add("/register", get(render_signup_form))
-        .add("/verify/{token}", get(verify))
-        .add("/login", get(|v| render_login_form(v, None)))
-        .add("/login", post(login))
-        .add("/forgot", post(forgot))
-        .add("/reset", post(reset))
-        .add("/current", get(current))
-        .add("/magic-link", post(magic_link))
-        .add("/magic-link/{token}", get(magic_link_verify))
+pub(super) async fn render_signup_form(
+    ViewEngine(v): ViewEngine<TeraView>,
+) -> Result<impl IntoResponse> {
+    super::views::signup_form(&v)
 }

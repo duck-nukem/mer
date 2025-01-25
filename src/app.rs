@@ -15,7 +15,7 @@ use std::path::Path;
 
 #[allow(unused_imports)]
 use crate::{
-    controllers, initializers, models::_entities::users, tasks, workers::downloader::DownloadWorker,
+    domain, initializers, models::_entities::users, tasks, web, workers::downloader::DownloadWorker,
 };
 
 pub struct App;
@@ -51,7 +51,7 @@ impl Hooks for App {
 
     fn routes(_ctx: &AppContext) -> AppRoutes {
         AppRoutes::with_default_routes() // controller routes below
-            .add_route(controllers::auth::routes())
+            .add_route(crate::web::auth::router::routes())
     }
     async fn connect_workers(ctx: &AppContext, queue: &Queue) -> Result<()> {
         queue.register(DownloadWorker::build(ctx)).await?;
