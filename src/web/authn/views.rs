@@ -79,7 +79,6 @@ pub(super) fn login_form(
             password: original.password.clone(),
         },
     );
-    println!("{:?}", page_state);
 
     format::render().view(
         v,
