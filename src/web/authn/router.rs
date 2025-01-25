@@ -1,6 +1,9 @@
 use loco_rs::prelude::*;
 
-use super::controllers::*;
+use super::controllers::{
+    current, forgot, login, magic_link, magic_link_verify, register, render_login_form,
+    render_signup_form, reset, verify,
+};
 
 pub fn routes() -> Routes {
     Routes::new()
