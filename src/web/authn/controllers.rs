@@ -4,7 +4,7 @@ use crate::{
         _entities::users,
         users::{LoginParams, RegisterParams},
     },
-    web::auth::views::{CurrentResponse, LoginResponse},
+    web::authn::views::{CurrentResponse, LoginResponse},
 };
 use axum::{
     debug_handler,
