@@ -31,6 +31,10 @@ server:
       folder:
         uri: "/static"
         path: "assets/static"
+    fallback:
+      enable: true
+      file: "assets/static/404.html"
+      code: 404
 
 # Worker Configuration
 workers:
