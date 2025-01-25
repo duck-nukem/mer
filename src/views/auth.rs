@@ -1,4 +1,4 @@
-use crate::models::_entities::users;
+use crate::models::{_entities::users, users::LoginParams};
 use axum::response::IntoResponse;
 use loco_rs::prelude::*;
 use serde::{Deserialize, Serialize};
@@ -41,8 +41,22 @@ impl CurrentResponse {
     }
 }
 
-pub fn login_form(v: &impl ViewRenderer) -> Result<impl IntoResponse> {
-    format::render().view(v, "auth/login.html", data!({}))
+pub fn login_form(
+    v: &impl ViewRenderer,
+    form: Option<&Form<LoginParams>>,
+) -> Result<impl IntoResponse> {
+    let template_data = form.as_ref().map_or_else(
+        || LoginParams {
+            email: String::new(),
+            password: String::new(),
+        },
+        |original| LoginParams {
+            email: original.email.clone(),
+            password: original.password.clone(),
+        },
+    );
+
+    format::render().view(v, "auth/login.html", template_data)
 }
 
 pub fn signup_form(v: &impl ViewRenderer) -> Result<impl IntoResponse> {

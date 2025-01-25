@@ -126,10 +126,24 @@ async fn reset(State(ctx): State<AppContext>, Json(params): Json<ResetParams>) -
     format::json(())
 }
 
+#[allow(clippy::unused_async)]
+async fn render_login_form(
+    ViewEngine(v): ViewEngine<TeraView>,
+    form: Option<&Form<LoginParams>>,
+) -> Result<impl IntoResponse> {
+    crate::views::auth::login_form(&v, form)
+}
+
 #[debug_handler]
-async fn login(State(ctx): State<AppContext>, Form(params): Form<LoginParams>) -> Result<Response> {
+async fn login(
+    ViewEngine(v): ViewEngine<TeraView>,
+    State(ctx): State<AppContext>,
+    Form(params): Form<LoginParams>,
+) -> Result<Response> {
     let Ok(user) = users::Model::find_by_email(&ctx.db, &params.email).await else {
-        return Ok(Redirect::to("/api/auth/login?nouser").into_response());
+        return Ok(render_login_form(ViewEngine(v), Some(&Form(params)))
+            .await
+            .into_response());
     };
 
     if !user.verify_password(&params.password) {
@@ -217,10 +231,6 @@ async fn magic_link_verify(
     format::json(LoginResponse::new(&user, &token))
 }
 
-async fn render_login_form(ViewEngine(v): ViewEngine<TeraView>) -> Result<impl IntoResponse> {
-    crate::views::auth::login_form(&v)
-}
-
 async fn render_signup_form(ViewEngine(v): ViewEngine<TeraView>) -> Result<impl IntoResponse> {
     crate::views::auth::signup_form(&v)
 }
@@ -231,7 +241,7 @@ pub fn routes() -> Routes {
         .add("/register", post(register))
         .add("/register", get(render_signup_form))
         .add("/verify/{token}", get(verify))
-        .add("/login", get(render_login_form))
+        .add("/login", get(|v| render_login_form(v, None)))
         .add("/login", post(login))
         .add("/forgot", post(forgot))
         .add("/reset", post(reset))
