@@ -165,21 +165,28 @@ pub(super) async fn login(
 
     let is_password_correct = user.verify_password(&params.password);
     if !is_password_correct {
-        return unauthorized("unauthorized!");
+        return Ok(render_login_form(
+            ViewEngine(v),
+            Query(LoginPageState {
+                status: Some(LoginPageStatus::ERROR),
+                message: Some(String::from("invalid_credentials")),
+            }),
+            Some(&Form(params)),
+        )
+        .await
+        .into_response());
     }
 
     let jwt_secret = ctx.config.get_jwt_config()?;
-
     let token = user
         .generate_jwt(&jwt_secret.secret, &jwt_secret.expiration)
         .or_else(|_| unauthorized("unauthorized!"))?;
-
     let auth_cookie = Cookie::build(("jwt", token))
         .path("/")
         .same_site(SameSite::Strict)
         .secure(true)
         .http_only(true);
-    let mut response = Redirect::to("/home").into_response();
+    let mut response = Redirect::to("/").into_response();
     #[allow(clippy::expect_used)]
     response.headers_mut().insert(
         SET_COOKIE,
