@@ -1,6 +1,5 @@
 function start_with_checks() {
   cargo run doctor || exit
-  cargo run db migrate
   cargo run watch
 }
 
