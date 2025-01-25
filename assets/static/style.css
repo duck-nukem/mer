@@ -144,6 +144,14 @@ select {
     font-family: "Roboto Mono", monospace;
 }
 
+label[required]:after {
+  padding-left: 0.2rem;
+  content: "*";
+  color: red;
+  position: relative;
+  top: -5px;
+}
+
 textarea {
     resize: vertical;
 }

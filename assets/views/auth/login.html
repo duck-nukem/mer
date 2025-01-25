@@ -3,14 +3,14 @@
 Login
 {% endblock %}
 {% block content%}
-
-{% if page_state.message and page_state.status == "ERROR" %}
-<h3>{{ t(key=page_state.message, lang="en-US") }}</h3>
-{% endif %}
-
 <div class="card" style="max-width: 720px; margin: 0 auto">
+
+    {% if page_state.message and page_state.status == "ERROR" %}
+    <div class="alert alert-danger" style="margin-bottom: 2rem">{{ t(key=page_state.message, lang="en-US") }}</div>
+    {% endif %}
+
     <form action="/api/auth/login" method="POST">
-        <label for="email">Email address</label>
+        <label required for="email">Email address</label>
         <input
             type="email"
             name="email"
@@ -19,7 +19,7 @@ Login
             value="{{ form.email }}"
             required
         />
-        <label for="password">Password</label>
+        <label required for="password">Password</label>
         <input
             type="password"
             name="password"
