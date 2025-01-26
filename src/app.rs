@@ -13,6 +13,7 @@ use loco_rs::{
 use migration::Migrator;
 use std::path::Path;
 
+use crate::web::{authn::middlewares::redirect_to_login_on_unauthorized, security::set_csp_header};
 #[allow(unused_imports)]
 use crate::{
     domain, initializers, models::_entities::users, tasks, web, workers::downloader::DownloadWorker,
@@ -50,9 +51,13 @@ impl Hooks for App {
     }
 
     fn routes(_ctx: &AppContext) -> AppRoutes {
-        AppRoutes::with_default_routes() // controller routes below
+        AppRoutes::with_default_routes()
             .add_route(crate::web::authn::router::routes())
-            .add_route(crate::web::dashboard::router::routes())
+            .add_route(
+                crate::web::dashboard::router::routes()
+                    .layer(axum::middleware::from_fn(redirect_to_login_on_unauthorized))
+                    .layer(axum::middleware::from_fn(set_csp_header)),
+            )
     }
 
     async fn connect_workers(ctx: &AppContext, queue: &Queue) -> Result<()> {

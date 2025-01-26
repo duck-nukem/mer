@@ -49,10 +49,11 @@ pub enum LoginPageStatus {
 }
 
 impl LoginPageStatus {
-    pub fn as_str(&self) -> &'static str {
+    #[must_use]
+    pub const fn as_str(&self) -> &'static str {
         match &self {
-            LoginPageStatus::SUCCESS => "success",
-            LoginPageStatus::ERROR => "error",
+            Self::SUCCESS => "success",
+            Self::ERROR => "error",
         }
     }
 }
@@ -66,7 +67,7 @@ pub struct LoginPageState {
 
 pub(super) fn login_form(
     v: &impl ViewRenderer,
-    page_state: LoginPageState,
+    page_state: &LoginPageState,
     form: Option<&Form<LoginParams>>,
 ) -> Result<impl IntoResponse> {
     let form_state = form.as_ref().map_or_else(

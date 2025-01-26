@@ -141,7 +141,7 @@ pub(super) async fn render_login_form(
     Query(query_params): Query<LoginPageState>,
     form: Option<&Form<LoginParams>>,
 ) -> Result<impl IntoResponse> {
-    super::views::login_form(&v, query_params, form)
+    super::views::login_form(&v, &query_params, form)
 }
 
 #[debug_handler]
