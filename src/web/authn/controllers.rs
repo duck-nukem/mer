@@ -184,7 +184,6 @@ pub(super) async fn login(
     let auth_cookie = Cookie::build(("jwt", token))
         .path("/")
         .same_site(SameSite::Strict)
-        .secure(true)
         .http_only(true);
     let mut response = Redirect::to("/").into_response();
     #[allow(clippy::expect_used)]
