@@ -178,25 +178,24 @@ impl Model {
     pub async fn find_by_pid(db: &DatabaseConnection, pid: &str) -> ModelResult<Self> {
         let parse_uuid = Uuid::parse_str(pid).map_err(|e| ModelError::Any(e.into()))?;
 
-        match USER_CACHE.get(parse_uuid.to_string().as_str()).await {
-            Some(cached_user) => Ok(cached_user),
-            None => {
-                let user = users::Entity::find()
-                    .filter(
-                        model::query::condition()
-                            .eq(users::Column::Pid, parse_uuid)
-                            .build(),
-                    )
-                    .one(db)
-                    .await?;
-                if let Some(user) = user {
-                    USER_CACHE
-                        .insert(parse_uuid.to_string(), user.clone())
-                        .await;
-                    return Ok(user);
-                }
-                user.ok_or_else(|| ModelError::EntityNotFound)
+        if let Some(cached_user) = USER_CACHE.get(parse_uuid.to_string().as_str()).await {
+            Ok(cached_user)
+        } else {
+            let user = users::Entity::find()
+                .filter(
+                    model::query::condition()
+                        .eq(users::Column::Pid, parse_uuid)
+                        .build(),
+                )
+                .one(db)
+                .await?;
+            if let Some(user) = user {
+                USER_CACHE
+                    .insert(parse_uuid.to_string(), user.clone())
+                    .await;
+                return Ok(user);
             }
+            user.ok_or_else(|| ModelError::EntityNotFound)
         }
     }
 
