@@ -108,16 +108,27 @@ impl Model {
     ///
     /// When could not find user or the user exists but hasn't verified their e-mail yet
     pub async fn find_by_verified_email(db: &DatabaseConnection, email: &str) -> ModelResult<Self> {
-        let user = users::Entity::find()
-            .filter(
-                model::query::condition()
-                    .eq(users::Column::Email, email)
-                    .is_not_null(users::Column::EmailVerifiedAt)
-                    .build(),
-            )
-            .one(db)
-            .await?;
-        user.ok_or_else(|| ModelError::EntityNotFound)
+        if let Some(cached_user) = USER_CACHE.get(email).await {
+            Ok(cached_user)
+        } else {
+            let user = users::Entity::find()
+                .filter(
+                    model::query::condition()
+                        .eq(users::Column::Email, email)
+                        .is_not_null(users::Column::EmailVerifiedAt)
+                        .build(),
+                )
+                .one(db)
+                .await?;
+
+            if let Some(user) = user {
+                USER_CACHE
+                    .insert(user.email.to_string(), user.clone())
+                    .await;
+                return Ok(user);
+            }
+            user.ok_or_else(|| ModelError::EntityNotFound)
+        }
     }
 
     /// finds a user by the provided verification token
