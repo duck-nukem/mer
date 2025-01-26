@@ -1,6 +1,8 @@
 use async_trait::async_trait;
 use chrono::{offset::Local, Duration};
 use loco_rs::{auth::jwt, hash, prelude::*};
+use moka::future::Cache;
+use once_cell::sync::Lazy;
 use serde::{Deserialize, Serialize};
 use uuid::Uuid;
 
@@ -8,6 +10,7 @@ pub use super::_entities::users::{self, ActiveModel, Entity, Model};
 
 pub const MAGIC_LINK_LENGTH: i8 = 32;
 pub const MAGIC_LINK_EXPIRATION_MIN: i8 = 5;
+static USER_CACHE: Lazy<Cache<String, Model>> = Lazy::new(|| Cache::new(10_000));
 
 #[derive(Debug, Deserialize, Serialize)]
 pub struct LoginParams {
@@ -174,15 +177,27 @@ impl Model {
     /// When could not find user  or DB query error
     pub async fn find_by_pid(db: &DatabaseConnection, pid: &str) -> ModelResult<Self> {
         let parse_uuid = Uuid::parse_str(pid).map_err(|e| ModelError::Any(e.into()))?;
-        let user = users::Entity::find()
-            .filter(
-                model::query::condition()
-                    .eq(users::Column::Pid, parse_uuid)
-                    .build(),
-            )
-            .one(db)
-            .await?;
-        user.ok_or_else(|| ModelError::EntityNotFound)
+
+        match USER_CACHE.get(parse_uuid.to_string().as_str()).await {
+            Some(cached_user) => Ok(cached_user),
+            None => {
+                let user = users::Entity::find()
+                    .filter(
+                        model::query::condition()
+                            .eq(users::Column::Pid, parse_uuid)
+                            .build(),
+                    )
+                    .one(db)
+                    .await?;
+                if let Some(user) = user {
+                    USER_CACHE
+                        .insert(parse_uuid.to_string(), user.clone())
+                        .await;
+                    return Ok(user);
+                }
+                user.ok_or_else(|| ModelError::EntityNotFound)
+            }
+        }
     }
 
     /// finds a user by the provided api key
