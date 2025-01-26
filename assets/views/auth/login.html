@@ -3,7 +3,7 @@
 Login
 {% endblock %}
 {% block content%}
-<div class="card" style="max-width: 720px; margin: 0 auto">
+<section style="max-width: 720px; margin: 0 auto">
 
     {% if page_state.message and page_state.status == "ERROR" %}
     <div class="alert alert-danger" style="margin-bottom: 2rem">{{ t(key=page_state.message, lang="en-US") }}</div>
@@ -34,7 +34,9 @@ Login
             Not a member?
             <a href="/api/auth/register">Start a 14 day free trial</a>
         </p>
-        <button type="submit">Sign in</button>
+        <footer>
+            <button type="submit">Sign in</button>
+        </footer>
     </form>
-</div>
+</section>
 {% endblock %}

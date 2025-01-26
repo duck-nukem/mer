@@ -3,12 +3,13 @@
     <head>
         {% block head %}
         <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta name="theme-color" content="#0000ff">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=1" />
         <link rel="stylesheet" href="/static/style.css" />
         <title>{% block title %}{% endblock title %} - Mér</title>
         {% endblock head %}
     </head>
-    <body class="container">
+    <body ontouchstart class="container">
         {% block content %}
         <!-- Placeholder comment -->
         {% endblock content %}

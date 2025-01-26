@@ -2,7 +2,7 @@
 {% block title %} Login {% endblock %}
 
 {% block content%}
-<div class="card" style="max-width: 720px; margin: 0 auto">
+<section style="max-width: 720px; margin: 0 auto">
     <form action="/api/auth/register" method="POST">
         <label required for="email">Name</label>
         <input type="name" name="name" id="name" autocomplete="name" required />
@@ -25,7 +25,9 @@
         <label required for="terms"> <input type="checkbox" name="terms" id="terms" required />
             I accept the <a href="#" target="_blank">terms & conditions</a>
         </label>
-        <button type="submit">Sign up</button>
+        <footer>
+            <button type="submit">Sign up</button>
+        </footer>
     </form>
-</div>
+</section>
 {% endblock %}

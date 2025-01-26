@@ -1,6 +1,5 @@
 :root {
     --primary-color-hex: #fff59f;
-    --site-background-hex: #9fffc5;
 }
 
 /* Basic Reset */
@@ -16,6 +15,21 @@ body {
     font-family: "Roboto Mono", monospace;
     background-color: var(--site-background-hex);
     color: #000;
+    background: linear-gradient(-45deg, #ff9f9f, #afff9f, #9fffef, #ff9ff0);
+    background-size: 400% 400%;
+    animation: gradient 60s ease infinite;
+}
+
+@keyframes gradient {
+	0% {
+		background-position: 0% 50%;
+	}
+	50% {
+		background-position: 100% 50%;
+	}
+	100% {
+		background-position: 0% 50%;
+	}
 }
 
 /* Typography */
@@ -41,7 +55,7 @@ p {
     max-width: 1200px;
 }
 
-.card {
+section {
     background-image: radial-gradient(
             rgb(240, 240, 240) 14.8%,
             transparent 14.8%
@@ -49,13 +63,19 @@ p {
         radial-gradient(rgb(240, 240, 240) 14.8%, transparent 14.8%);
     background-position:
         0px 0px,
-        8px 8px;
-    background-size: 16px 16px;
+        4px 4px;
+    background-size: 8px 8px;
     background-color: rgb(255, 255, 255);
     padding: 2rem;
     background-color: #fff;
     border: 2px solid #000;
     box-shadow: 4px 4px 0 #000;
+}
+
+section footer {
+    display: flex;
+    justify-content: end;
+    gap: 16px;
 }
 
 /* Grid System */
@@ -155,7 +175,8 @@ select {
     margin-bottom: 1rem;
     border: 2px solid #000;
     box-shadow: 4px 4px 0 #000;
-    font-family: "Roboto Mono", monospace;
+    font-family: monospace;
+    font-size: 16px;
 }
 
 label[required]:after {

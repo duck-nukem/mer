@@ -1,8 +1,12 @@
 {% extends "base.html" %}
 {% block content %}
-<h1>You are {{ user.name }}!</h1>
-<p>{{ t(key="hello-world", lang="en-US") }}</p>
-<p>{{ t(key="hello-world", lang="de-DE") }}</p>
-<button>Test</button>
-<button disabled>Disabled</button>
+<section>
+  <h1>You are {{ user.name }}!</h1>
+  <p>{{ t(key="hello-world", lang="en-US") }}</p>
+  <p>{{ t(key="hello-world", lang="de-DE") }}</p>
+  <footer>
+    <button>Test</button>
+    <button disabled>Disabled</button>
+  </footer>
+</section>
 {% endblock %}
