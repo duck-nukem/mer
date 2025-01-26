@@ -12,7 +12,7 @@
 html,
 body {
     height: 100%;
-    font-family: "Roboto Mono", monospace;
+    font-family: monospace;
     background-color: var(--site-background-hex);
     color: #000;
     background: linear-gradient(-45deg, #ff9f9f, #afff9f, #9fffef, #ff9ff0);
@@ -76,6 +76,18 @@ section footer {
     display: flex;
     justify-content: end;
     gap: 16px;
+}
+
+nav {
+    position: sticky;
+    top: 1rem;
+    display: flex;
+    justify-content: space-between;
+    z-index: 100;
+}
+
+nav a.button {
+    line-height: 4rem;
 }
 
 /* Grid System */
@@ -154,10 +166,13 @@ button:not(:disabled):active,
 
 button:disabled,
 .button:disabled {
+    position: relative;
+    top: 4px;
+    left: 4px;
     cursor: not-allowed;
     color: #777;
     border: 2px solid #777;
-    box-shadow: 4px 4px 0 #777;
+    box-shadow: none !important;
 }
 
 button:not(:disabled):hover,
