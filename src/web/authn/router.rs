@@ -3,7 +3,7 @@ use loco_rs::prelude::*;
 
 use super::{
     controllers::{
-        current, forgot, login, magic_link, magic_link_verify, register, render_login_form,
+        current, forgot, login, logout, magic_link, magic_link_verify, register, render_login_form,
         render_signup_form, reset, verify_email_via_token,
     },
     views::LoginPageState,
@@ -29,6 +29,7 @@ pub fn routes() -> Routes {
             }),
         )
         .add("/login", post(login))
+        .add("/logout", post(logout))
         .add("/forgot", post(forgot))
         .add("/reset", post(reset))
         .add("/current", get(current))

@@ -7,9 +7,13 @@ use crate::{
     web::authn::views::{CurrentResponse, LoginResponse},
 };
 use axum::{
+    body::Body,
     debug_handler,
     extract::Query,
-    http::{header::SET_COOKIE, HeaderValue},
+    http::{
+        header::{LOCATION, SET_COOKIE},
+        HeaderValue, StatusCode,
+    },
     response::Redirect,
     Form,
 };
@@ -142,6 +146,20 @@ pub(super) async fn render_login_form(
     form: Option<&Form<LoginParams>>,
 ) -> Result<impl IntoResponse> {
     super::views::login_form(&v, &query_params, form)
+}
+
+#[allow(clippy::unwrap_used, clippy::unused_async)]
+pub(super) async fn logout() -> Result<Response> {
+    let response_builder = Response::builder()
+        .status(StatusCode::SEE_OTHER)
+        .header(
+            SET_COOKIE,
+            "jwt=deleted; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT",
+        )
+        .header(LOCATION, "/api/auth/login")
+        .body(Body::empty());
+
+    Ok(response_builder.unwrap())
 }
 
 #[debug_handler]

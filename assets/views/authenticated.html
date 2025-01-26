@@ -17,7 +17,9 @@
                 <a style="padding: 1rem; text-decoration: none" href="#">Stats</a>
                 <a style="padding: 1rem; text-decoration: none" href="#">Admin</a>
             </section>
-            <a class="button" href="#">Log out</a>
+            <form method="POST" action="/api/auth/logout">
+                <button style="height: 100%">Log out</button>
+            </form>
         </nav>
         <main style="position: relative; top: 4rem;">
         {% block content %}
