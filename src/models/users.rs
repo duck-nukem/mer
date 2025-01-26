@@ -102,6 +102,11 @@ impl Model {
         user.ok_or_else(|| ModelError::EntityNotFound)
     }
 
+    /// finds a user by the provided email
+    ///
+    /// # Errors
+    ///
+    /// When could not find user or the user exists but hasn't verified their e-mail yet
     pub async fn find_by_verified_email(db: &DatabaseConnection, email: &str) -> ModelResult<Self> {
         let user = users::Entity::find()
             .filter(
