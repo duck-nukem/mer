@@ -176,22 +176,22 @@ impl Model {
     ///
     /// When could not find user  or DB query error
     pub async fn find_by_pid(db: &DatabaseConnection, pid: &str) -> ModelResult<Self> {
-        let parse_uuid = Uuid::parse_str(pid).map_err(|e| ModelError::Any(e.into()))?;
+        let parsed_uuid = Uuid::parse_str(pid).map_err(|e| ModelError::Any(e.into()))?;
 
-        if let Some(cached_user) = USER_CACHE.get(parse_uuid.to_string().as_str()).await {
+        if let Some(cached_user) = USER_CACHE.get(parsed_uuid.to_string().as_str()).await {
             Ok(cached_user)
         } else {
             let user = users::Entity::find()
                 .filter(
                     model::query::condition()
-                        .eq(users::Column::Pid, parse_uuid)
+                        .eq(users::Column::Pid, parsed_uuid)
                         .build(),
                 )
                 .one(db)
                 .await?;
             if let Some(user) = user {
                 USER_CACHE
-                    .insert(parse_uuid.to_string(), user.clone())
+                    .insert(parsed_uuid.to_string(), user.clone())
                     .await;
                 return Ok(user);
             }
@@ -278,6 +278,12 @@ impl Model {
 }
 
 impl ActiveModel {
+    async fn update_user(self, db: &DatabaseConnection) -> ModelResult<Model> {
+        USER_CACHE
+            .invalidate(&self.pid.clone().unwrap().to_string())
+            .await;
+        Ok(self.update(db).await?)
+    }
     /// Sets the email verification information for the user and
     /// updates it in the database.
     ///
@@ -293,7 +299,7 @@ impl ActiveModel {
     ) -> ModelResult<Model> {
         self.email_verification_sent_at = ActiveValue::set(Some(Local::now().into()));
         self.email_verification_token = ActiveValue::Set(Some(Uuid::new_v4().to_string()));
-        Ok(self.update(db).await?)
+        self.update_user(db).await
     }
 
     /// Sets the information for a reset password request,
@@ -311,7 +317,7 @@ impl ActiveModel {
     pub async fn set_forgot_password_sent(mut self, db: &DatabaseConnection) -> ModelResult<Model> {
         self.reset_sent_at = ActiveValue::set(Some(Local::now().into()));
         self.reset_token = ActiveValue::Set(Some(Uuid::new_v4().to_string()));
-        Ok(self.update(db).await?)
+        self.update_user(db).await
     }
 
     /// Records the verification time when a user verifies their
@@ -325,7 +331,7 @@ impl ActiveModel {
     /// when has DB query error
     pub async fn verified(mut self, db: &DatabaseConnection) -> ModelResult<Model> {
         self.email_verified_at = ActiveValue::set(Some(Local::now().into()));
-        Ok(self.update(db).await?)
+        self.update_user(db).await
     }
 
     /// Resets the current user password with a new password and
@@ -346,7 +352,7 @@ impl ActiveModel {
             ActiveValue::set(hash::hash_password(password).map_err(|e| ModelError::Any(e.into()))?);
         self.reset_token = ActiveValue::Set(None);
         self.reset_sent_at = ActiveValue::Set(None);
-        Ok(self.update(db).await?)
+        self.update_user(db).await
     }
 
     /// Creates a magic link token for passwordless authentication.
@@ -362,7 +368,7 @@ impl ActiveModel {
 
         self.magic_link_token = ActiveValue::set(Some(random_str));
         self.magic_link_expiration = ActiveValue::set(Some(expired.into()));
-        Ok(self.update(db).await?)
+        self.update_user(db).await
     }
 
     /// Verifies and invalidates the magic link after successful authentication.
@@ -375,6 +381,6 @@ impl ActiveModel {
     pub async fn clear_magic_link(mut self, db: &DatabaseConnection) -> ModelResult<Model> {
         self.magic_link_token = ActiveValue::set(None);
         self.magic_link_expiration = ActiveValue::set(None);
-        Ok(self.update(db).await?)
+        self.update_user(db).await
     }
 }
