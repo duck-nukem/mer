@@ -150,7 +150,7 @@ pub(super) async fn login(
     State(ctx): State<AppContext>,
     Form(params): Form<LoginParams>,
 ) -> Result<Response> {
-    let Ok(user) = users::Model::find_by_email(&ctx.db, &params.email).await else {
+    let Ok(user) = users::Model::find_by_verified_email(&ctx.db, &params.email).await else {
         return Ok(render_login_form(
             ViewEngine(v),
             Query(LoginPageState {

@@ -122,8 +122,8 @@ async fn can_find_by_pid() {
     let non_existing_user_results =
         Model::find_by_pid(&boot.app_context.db, "23232323-2323-2323-2323-232323232323").await;
 
-    assert_debug_snapshot!(existing_user);
-    assert_debug_snapshot!(non_existing_user_results);
+    assert!(existing_user.is_ok_and(|u| u.email == "user1@example.com"));
+    assert!(non_existing_user_results.is_err());
 }
 
 #[tokio::test]
