@@ -319,3 +319,9 @@ a:not(.button):hover {
         flex: 0 0 100%;
     }
 }
+
+@media (max-width: 465px) {
+    .mobile-hidden {
+        display: none !important;
+    }
+}
