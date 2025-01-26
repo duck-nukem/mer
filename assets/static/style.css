@@ -1,3 +1,8 @@
+:root {
+    --primary-color-hex: #fff59f;
+    --site-background-hex: #9fffc5;
+}
+
 /* Basic Reset */
 * {
     margin: 0;
@@ -9,7 +14,7 @@ html,
 body {
     height: 100%;
     font-family: "Roboto Mono", monospace;
-    background-color: #fff;
+    background-color: var(--site-background-hex);
     color: #000;
 }
 
@@ -122,6 +127,7 @@ button,
 
 button:not(:disabled):active,
 .button:not(:disabled):active {
+    background-color: var(--primary-color-hex);
     transform: translate(4px, 4px) !important;
     box-shadow: none !important;
 }
