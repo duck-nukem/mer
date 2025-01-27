@@ -4,6 +4,11 @@ Aggregated energy usage stats
 
 ## Setup
 
+Current architecture consists of:
+* main app
+* postgres database
+* in-memory caching
+
 ### Prerequisites
 
 Something that runs containers, e.g. docker, podman, orbstack, etc
@@ -11,12 +16,18 @@ Something that runs containers, e.g. docker, podman, orbstack, etc
 #### Up & Running
 
 - `docker compose up -d` to bring up the dependencies
-- ./dev.sh runs the above + starts the project with watch mode
+- `./dev.sh` runs the above + starts the project with watch mode
+- `./sql.sh` drops you in the postgres console
 
 
 ## Good to know
 
 ### Security
+
+#### Session
+
+Sessions are entirely stored in cookies in the form of JWT tokens. JWT is an overkill probably, but it was already
+implemented in the framework, so I left it at that.
 
 #### CSP
 
