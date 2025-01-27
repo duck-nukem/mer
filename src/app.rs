@@ -52,7 +52,10 @@ impl Hooks for App {
 
     fn routes(_ctx: &AppContext) -> AppRoutes {
         AppRoutes::with_default_routes()
-            .add_route(crate::web::authn::router::routes())
+            .add_route(
+                crate::web::authn::router::routes()
+                    .layer(axum::middleware::from_fn(set_csp_header)),
+            )
             .add_route(
                 crate::web::dashboard::router::routes()
                     .layer(axum::middleware::from_fn(redirect_to_login_on_unauthorized))
