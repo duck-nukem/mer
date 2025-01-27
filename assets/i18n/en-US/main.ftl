@@ -9,4 +9,7 @@ parameter2 = text one { $param } second { $multi-word-param }
 email = text with an EMAIL("example@example.org")
 fallback = this should fall back
 
+# login & signup
 invalid_credentials = Invalid username or password
+invalid_token = Invalid token. Maybe it expired?
+verification_success=Verification successful!

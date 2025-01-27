@@ -80,7 +80,9 @@ pub(super) async fn verify_email_via_token(
     Path(token): Path<String>,
 ) -> Result<Response> {
     let Ok(user) = users::Model::find_by_verification_token(&ctx.db, &token).await else {
-        return Ok(Redirect::to("/api/auth/login?error=incorrect").into_response());
+        return Ok(
+            Redirect::to("/api/auth/login?status=error&message=invalid_token").into_response(),
+        );
     };
 
     if user.email_verified_at.is_some() {
@@ -91,7 +93,7 @@ pub(super) async fn verify_email_via_token(
         tracing::info!(pid = user.pid.to_string(), "user verified");
     }
 
-    Ok(Redirect::to("/api/auth/login?verification=success").into_response())
+    Ok(Redirect::to("/api/auth/login?status=success&message=verification_success").into_response())
 }
 
 /// In case the user forgot his password  this endpoints generate a forgot token
@@ -146,6 +148,22 @@ pub(super) async fn render_login_form(
     form: Option<&Form<LoginParams>>,
 ) -> Result<impl IntoResponse> {
     super::views::login_form(&v, &query_params, form)
+}
+
+#[allow(clippy::unused_async)]
+pub(super) async fn render_default_login_form(
+    ViewEngine(v): ViewEngine<TeraView>,
+    Query(query_params): Query<LoginPageState>,
+) -> Result<impl IntoResponse> {
+    render_login_form(
+        ViewEngine(v),
+        Query(query_params),
+        Some(&Form(LoginParams {
+            email: String::new(),
+            password: String::new(),
+        })),
+    )
+    .await
 }
 
 #[allow(clippy::unwrap_used, clippy::unused_async)]

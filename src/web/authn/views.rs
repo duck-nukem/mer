@@ -43,6 +43,7 @@ impl CurrentResponse {
 }
 
 #[derive(Debug, Deserialize, Serialize)]
+#[serde(rename_all = "lowercase")]
 pub enum LoginPageStatus {
     SUCCESS,
     ERROR,

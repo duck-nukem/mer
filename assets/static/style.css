@@ -254,6 +254,11 @@ select[multiple] {
     color: #000;
 }
 
+.alert-success {
+    background-color: #edffe7;
+    color: #000;
+}
+
 /* Modals */
 .modal {
     display: none;

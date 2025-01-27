@@ -5,8 +5,18 @@ Login
 {% block content%}
 <section style="max-width: 720px; margin: 0 auto">
 
-    {% if page_state.message and page_state.status == "ERROR" %}
-    <div class="alert alert-danger" style="margin-bottom: 2rem">{{ t(key=page_state.message, lang="en-US") }}</div>
+    {% if page_state.message %}
+    <div
+        {% if page_state.status and page_state.status == "error" %}
+        class="alert alert-danger"
+        {% elif page_state.status and page_state.status == "success" %}
+        class="alert alert-success"
+        {% else %}
+        class="alert alert-info"
+        {% endif %}
+        style="margin-bottom: 2rem">
+        {{ t(key=page_state.message, lang="en-US") }}
+    </div>
     {% endif %}
 
     <form action="/api/auth/login" method="POST">
