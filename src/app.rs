@@ -7,16 +7,20 @@ use loco_rs::{
     controller::AppRoutes,
     db::{self, truncate_table},
     environment::Environment,
+    prelude::Routes,
     task::Tasks,
     Result,
 };
 use migration::Migrator;
 use std::path::Path;
 
-use crate::web::{authn::middlewares::redirect_to_login_on_unauthorized, security::set_csp_header};
 #[allow(unused_imports)]
 use crate::{
     domain, initializers, models::_entities::users, tasks, web, workers::downloader::DownloadWorker,
+};
+use crate::{
+    routes::{with_middlewares, with_routes},
+    web::security::set_csp_header,
 };
 
 pub struct App;
@@ -51,16 +55,13 @@ impl Hooks for App {
     }
 
     fn routes(_ctx: &AppContext) -> AppRoutes {
+        let app_routes: Vec<Routes> = with_routes().into_iter().map(with_middlewares).collect();
         AppRoutes::with_default_routes()
             .add_route(
                 crate::web::authn::router::routes()
                     .layer(axum::middleware::from_fn(set_csp_header)),
             )
-            .add_route(
-                crate::web::dashboard::router::routes()
-                    .layer(axum::middleware::from_fn(redirect_to_login_on_unauthorized))
-                    .layer(axum::middleware::from_fn(set_csp_header)),
-            )
+            .add_routes(app_routes)
     }
 
     async fn connect_workers(ctx: &AppContext, queue: &Queue) -> Result<()> {
