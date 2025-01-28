@@ -24,7 +24,7 @@ Something that runs containers, e.g. docker, podman, orbstack, etc
 
 ### Security
 
-#### Session
+#### Auth Session
 
 Sessions are entirely stored in cookies in the form of JWT tokens. JWT is an overkill probably, but it was already
 implemented in the framework, so I left it at that.
@@ -51,3 +51,11 @@ async fn my_view(
 ```
 
 Alternatively, you can extract ad-hoc params via `Query(params): Query<HashMap<String, String>>`.
+
+#### Routers & middlewares
+
+In `src/routes.rs` there are two top-level functions where you can define the routes from your apps,
+and the middlewares you want to apply to all of them.
+
+Be mindful which routes you include here, for example if one of the middlewares redirects unauthenticated
+users to login, you shouldn't add the authentication related app routes to this config!
