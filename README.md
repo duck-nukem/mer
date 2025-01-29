@@ -42,8 +42,15 @@ GET -> user action -> POST -> response; in this cycle we might want to show a me
 Current solution is to simply use query params to pass along messages.
 
 ```rust
+#[skip_serializing_none]
+#[derive(Debug, Deserialize, Serialize)]
+pub struct PageState {
+    pub status: Option<PageStatus>,
+    pub message: Option<String>,
+}
+
 async fn my_view(
-  ViewEnginer(v): ViewEngine<TeraView>,
+  ViewEngine(v): ViewEngine<TeraView>,
   Query(query_params): Query<PageState>,
 ) -> Result<impl IntoResponse> {
   views::view_fn(&v, &query_params)
