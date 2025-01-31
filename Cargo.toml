@@ -65,6 +65,7 @@ unic-langid = { version = "0.9.4" }
 rand = { version = "0.8.5" }
 moka = { version = "0.12", features = ["future"] }
 once_cell = { version = "1.20.2" }
+futures = { version = "0.3.31" }
 
 [[bin]]
 name = "mer-cli"

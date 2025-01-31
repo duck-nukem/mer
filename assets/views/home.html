@@ -9,6 +9,15 @@
   <script nonce={{nonce}}>document.write("Nonce-based scripts run ✅")</script>
   <script>document.write("Unsafe-inline scripts run 🐞")</script>
 
+  <p style="margin-top: 1rem">Last message received via SSE: <span id="messageContainer">No data received</span></p>
+  <script nonce={{nonce}}>
+    const eventSource = new EventSource("/events");
+
+    eventSource.onmessage = (event) => {
+      document.getElementById("messageContainer").innerText = event.data;
+    };
+  </script>
+
   <footer>
     <button>Save</button>
     <button disabled>Delete</button>

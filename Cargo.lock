@@ -2678,6 +2678,7 @@ dependencies = [
  "axum",
  "chrono",
  "fluent-templates",
+ "futures",
  "include_dir",
  "insta",
  "loco-rs",
