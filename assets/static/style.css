@@ -1,5 +1,12 @@
 :root {
     --primary-color-hex: #fff59f;
+    --box-shadow: #000;
+}
+
+@media (prefers-color-scheme: dark) {
+    html {
+        filter: invert(100%);
+    }
 }
 
 /* Basic Reset */
@@ -16,21 +23,22 @@ html {
     animation: gradient 60s ease infinite;
 }
 
-html, body {
+html,
+body {
     height: 100%;
     font-family: monospace;
 }
 
 @keyframes gradient {
-	0% {
-		background-position: 0% 50%;
-	}
-	50% {
-		background-position: 100% 50%;
-	}
-	100% {
-		background-position: 0% 50%;
-	}
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
 }
 
 /* Typography */
@@ -69,8 +77,8 @@ section {
     background-color: rgb(255, 255, 255);
     padding: 2rem;
     background-color: #fff;
-    border: 2px solid #000;
-    box-shadow: 4px 4px 0 #000;
+    border: 2px solid var(--box-shadow);
+    box-shadow: 4px 4px 0 var(--box-shadow);
 }
 
 section footer {
@@ -152,8 +160,8 @@ button,
     text-decoration: none;
     color: #000;
     background-color: #fff;
-    border: 2px solid #000;
-    box-shadow: 4px 4px 0 #000;
+    border: 2px solid var(--box-shadow);
+    box-shadow: 4px 4px 0 var(--box-shadow);
     cursor: pointer;
     transition: all 0.1s ease-in-out;
 }
@@ -179,7 +187,7 @@ button:disabled,
 button:not(:disabled):hover,
 .button:not(:disabled):hover {
     transform: translate(-2px, -2px);
-    box-shadow: 6px 6px 0 #000;
+    box-shadow: 6px 6px 0 var(--box-shadow);
 }
 
 /* Forms */
@@ -189,18 +197,18 @@ select {
     width: 100%;
     padding: 0.75rem;
     margin-bottom: 1rem;
-    border: 2px solid #000;
-    box-shadow: 4px 4px 0 #000;
+    border: 2px solid var(--box-shadow);
+    box-shadow: 4px 4px 0 var(--box-shadow);
     font-family: monospace;
     font-size: 16px;
 }
 
 label[required]:after {
-  padding-left: 0.2rem;
-  content: "*";
-  color: red;
-  position: relative;
-  top: -5px;
+    padding-left: 0.2rem;
+    content: "*";
+    color: red;
+    position: relative;
+    top: -5px;
 }
 
 textarea {
@@ -228,16 +236,16 @@ select[multiple] {
 /* Boxes */
 .box {
     padding: 1rem;
-    border: 2px solid #000;
-    box-shadow: 4px 4px 0 #000;
+    border: 2px solid var(--box-shadow);
+    box-shadow: 4px 4px 0 var(--box-shadow);
     margin-bottom: 1rem;
 }
 
 /* Alerts */
 .alert {
     padding: 1rem;
-    border: 2px solid #000;
-    box-shadow: 4px 4px 0 #000;
+    border: 2px solid var(--box-shadow);
+    box-shadow: 4px 4px 0 var(--box-shadow);
     margin-bottom: 1rem;
 }
 
@@ -277,16 +285,16 @@ select[multiple] {
 .modal-content {
     background-color: #fff;
     padding: 2rem;
-    border: 2px solid #000;
-    box-shadow: 4px 4px 0 #000;
+    border: 2px solid var(--box-shadow);
+    box-shadow: 4px 4px 0 var(--box-shadow);
 }
 
 /* Progress Bars */
 .progress {
     width: 100%;
     background-color: #e0e0e0;
-    border: 2px solid #000;
-    box-shadow: 4px 4px 0 #000;
+    border: 2px solid var(--box-shadow);
+    box-shadow: 4px 4px 0 var(--box-shadow);
     height: 1.5rem;
 }
 
@@ -300,8 +308,8 @@ select[multiple] {
 /* Code Container */
 .code-container {
     background-color: #f5f5f5;
-    border: 2px solid #000;
-    box-shadow: 4px 4px 0 #000;
+    border: 2px solid var(--box-shadow);
+    box-shadow: 4px 4px 0 var(--box-shadow);
     padding: 1rem;
     font-family: "Roboto Mono", monospace;
     margin-bottom: 1rem;
