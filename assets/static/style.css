@@ -9,14 +9,16 @@
     box-sizing: border-box;
 }
 
-html,
-body {
-    height: 100%;
-    font-family: monospace;
+html {
     color: #000;
     background: linear-gradient(-45deg, #ff9f9f, #afff9f, #9fffef, #ff9ff0);
     background-size: 400% 400%;
     animation: gradient 60s ease infinite;
+}
+
+html, body {
+    height: 100%;
+    font-family: monospace;
 }
 
 @keyframes gradient {
