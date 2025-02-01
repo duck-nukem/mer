@@ -1,1 +1,1 @@
-Magic link example
+Your sign-in link is ready
