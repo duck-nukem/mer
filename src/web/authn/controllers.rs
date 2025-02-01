@@ -4,7 +4,7 @@ use crate::{
         _entities::users,
         users::{LoginParams, RegisterParams},
     },
-    web::authn::views::{CurrentResponse, LoginResponse},
+    web::authn::views::CurrentResponse,
 };
 use axum::{
     body::Body,
@@ -23,7 +23,7 @@ use regex::Regex;
 use serde::{Deserialize, Serialize};
 use std::sync::OnceLock;
 
-use super::views::{LoginPageState, LoginPageStatus};
+use super::views::{LoginPageState, LoginPageStatus, ResetPasswordPageState};
 
 pub static EMAIL_DOMAIN_RE: OnceLock<Regex> = OnceLock::new();
 
@@ -117,16 +117,23 @@ pub(super) async fn forgot(
         .await?;
 
     AuthMailer::forgot_password(&ctx, &user).await?;
+    Ok(Redirect::to("/api/auth/mail-sent").into_response())
+}
 
-    format::json(())
+pub(super) async fn render_reset_password_form(
+    ViewEngine(v): ViewEngine<TeraView>,
+    Query(query_params): Query<ResetPasswordPageState>,
+) -> Result<impl IntoResponse> {
+    super::views::render_reset_password_form(&v, &query_params)
 }
 
 /// reset user password by the given parameters
 #[debug_handler]
 pub(super) async fn reset(
     State(ctx): State<AppContext>,
-    Json(params): Json<ResetParams>,
+    Form(params): Form<ResetParams>,
 ) -> Result<Response> {
+    println!("{:?}", &params.token);
     let Ok(user) = users::Model::find_by_reset_token(&ctx.db, &params.token).await else {
         // we don't want to expose our users email. if the email is invalid we still
         // returning success to the caller
@@ -138,7 +145,7 @@ pub(super) async fn reset(
         .reset_password(&ctx.db, &params.password)
         .await?;
 
-    format::json(())
+    Ok(Redirect::to("/api/auth/login?status=success&message=password_changed").into_response())
 }
 
 #[allow(clippy::unused_async)]

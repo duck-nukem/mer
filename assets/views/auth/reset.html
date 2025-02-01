@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %} Login {% endblock %}
+
+{% block content%}
+<section style="max-width: 720px; margin: 0 auto">
+    <form action="/api/auth/reset" method="POST">
+        <input type="hidden" name="token" id="token" value={{token}} required />
+        <label required for="password">New password</label>
+        <input
+            type="password"
+            name="password"
+            id="password"
+            autocomplete="password"
+            required
+        />
+        <footer>
+            <button type="submit">Make this my new password</button>
+        </footer>
+    </form>
+</section>
+{% endblock %}

@@ -2,8 +2,8 @@ use loco_rs::prelude::*;
 
 use super::controllers::{
     current, forgot, login, logout, magic_link, magic_link_verify, mail_sent_acknowledgement,
-    register, render_default_login_form, render_forgotten_password_form, render_signup_form, reset,
-    verify_email_via_token,
+    register, render_default_login_form, render_forgotten_password_form,
+    render_reset_password_form, render_signup_form, reset, verify_email_via_token,
 };
 
 pub fn routes() -> Routes {
@@ -17,6 +17,7 @@ pub fn routes() -> Routes {
         .add("/logout", post(logout))
         .add("/forgot", get(render_forgotten_password_form))
         .add("/forgot", post(forgot))
+        .add("/reset", get(render_reset_password_form))
         .add("/reset", post(reset))
         .add("/current", get(current))
         .add("/magic-link", post(magic_link))

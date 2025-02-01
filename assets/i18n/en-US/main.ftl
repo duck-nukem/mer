@@ -12,4 +12,5 @@ fallback = Fallback string (wasn't found in German)
 # login & signup
 invalid_credentials = Invalid username or password
 invalid_token = Invalid token. Maybe it expired?
-verification_success=Verification successful!
+verification_success = Verification successful!
+password_changed = Let's use that new password!

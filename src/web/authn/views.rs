@@ -89,6 +89,18 @@ pub(super) fn login_form(
     )
 }
 
+#[derive(Debug, Deserialize, Serialize)]
+pub struct ResetPasswordPageState {
+    pub token: String,
+}
+
+pub(super) fn render_reset_password_form(
+    v: &impl ViewRenderer,
+    query_params: &ResetPasswordPageState,
+) -> Result<impl IntoResponse> {
+    format::render().view(v, "auth/reset.html", data!(query_params))
+}
+
 pub(super) fn signup_form(v: &impl ViewRenderer) -> Result<impl IntoResponse> {
     format::render().view(v, "auth/signup.html", data!({}))
 }
