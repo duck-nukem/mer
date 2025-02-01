@@ -92,3 +92,11 @@ pub(super) fn login_form(
 pub(super) fn signup_form(v: &impl ViewRenderer) -> Result<impl IntoResponse> {
     format::render().view(v, "auth/signup.html", data!({}))
 }
+
+pub(super) fn forgotten_password_form(v: &impl ViewRenderer) -> Result<impl IntoResponse> {
+    format::render().view(v, "auth/forgot_password.html", data!({}))
+}
+
+pub(super) fn mail_sent_acknowledgement(v: &impl ViewRenderer) -> Result<impl IntoResponse> {
+    format::render().view(v, "auth/check_mail.html", data!({}))
+}

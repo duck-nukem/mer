@@ -103,7 +103,7 @@ pub(super) async fn verify_email_via_token(
 #[debug_handler]
 pub(super) async fn forgot(
     State(ctx): State<AppContext>,
-    Json(params): Json<ForgotParams>,
+    Form(params): Form<ForgotParams>,
 ) -> Result<Response> {
     let Ok(user) = users::Model::find_by_email(&ctx.db, &params.email).await else {
         // we don't want to expose our users email. if the email is invalid we still
@@ -166,6 +166,18 @@ pub(super) async fn render_default_login_form(
     .await
 }
 
+pub(super) async fn render_forgotten_password_form(
+    ViewEngine(v): ViewEngine<TeraView>,
+) -> Result<impl IntoResponse> {
+    super::views::forgotten_password_form(&v)
+}
+
+pub(super) async fn mail_sent_acknowledgement(
+    ViewEngine(v): ViewEngine<TeraView>,
+) -> Result<impl IntoResponse> {
+    super::views::mail_sent_acknowledgement(&v)
+}
+
 #[allow(clippy::unwrap_used, clippy::unused_async)]
 pub(super) async fn logout() -> Result<Response> {
     let response_builder = Response::builder()
@@ -178,6 +190,22 @@ pub(super) async fn logout() -> Result<Response> {
         .body(Body::empty());
 
     Ok(response_builder.unwrap())
+}
+
+#[allow(clippy::expect_used)]
+fn generate_login_response(token: &str) -> Response<Body> {
+    let auth_cookie = Cookie::build(("jwt", token))
+        .path("/")
+        .same_site(SameSite::Strict)
+        .http_only(true);
+    let mut response = Redirect::to("/").into_response();
+    response.headers_mut().insert(
+        SET_COOKIE,
+        HeaderValue::from_str(auth_cookie.to_string().as_str())
+            .expect("Can't construct auth cookie header, crashing!"),
+    );
+
+    response
 }
 
 #[debug_handler]
@@ -217,19 +245,8 @@ pub(super) async fn login(
     let token = user
         .generate_jwt(&jwt_secret.secret, &jwt_secret.expiration)
         .or_else(|_| unauthorized("unauthorized!"))?;
-    let auth_cookie = Cookie::build(("jwt", token))
-        .path("/")
-        .same_site(SameSite::Strict)
-        .http_only(true);
-    let mut response = Redirect::to("/").into_response();
-    #[allow(clippy::expect_used)]
-    response.headers_mut().insert(
-        SET_COOKIE,
-        HeaderValue::from_str(auth_cookie.to_string().as_str())
-            .expect("Can't construct auth cookie header, crashing!"),
-    );
 
-    Ok(response.into_response())
+    Ok(generate_login_response(token.as_str()).into_response())
 }
 
 #[debug_handler]
@@ -254,7 +271,7 @@ pub(super) async fn current(auth: auth::JWT, State(ctx): State<AppContext>) -> R
 /// This flow enhances security by avoiding traditional passwords and providing a seamless login experience.
 pub(super) async fn magic_link(
     State(ctx): State<AppContext>,
-    Json(params): Json<MagicLinkParams>,
+    Form(params): Form<MagicLinkParams>,
 ) -> Result<Response> {
     let Ok(user) = users::Model::find_by_email(&ctx.db, &params.email).await else {
         // we don't want to expose our users email. if the email is invalid we still
@@ -266,7 +283,7 @@ pub(super) async fn magic_link(
     let user = user.into_active_model().create_magic_link(&ctx.db).await?;
     AuthMailer::send_magic_link(&ctx, &user).await?;
 
-    format::empty_json()
+    Ok(Redirect::to("/api/auth/mail-sent").into_response())
 }
 
 /// Verifies a magic link token and authenticates the user.
@@ -288,7 +305,7 @@ pub(super) async fn magic_link_verify(
         .generate_jwt(&jwt_secret.secret, &jwt_secret.expiration)
         .or_else(|_| unauthorized("unauthorized!"))?;
 
-    format::json(LoginResponse::new(&user, &token))
+    Ok(generate_login_response(token.as_str()).into_response())
 }
 
 pub(super) async fn render_signup_form(
