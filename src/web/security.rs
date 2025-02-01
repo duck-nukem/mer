@@ -4,6 +4,8 @@ use axum::{
     middleware::Next,
     response::Response,
 };
+use base64::engine::general_purpose::STANDARD;
+use base64::Engine;
 use rand::Rng;
 
 #[derive(Clone, Debug)]
@@ -11,14 +13,13 @@ pub struct CspNonce {
     pub value: String,
 }
 
-#[allow(clippy::expect_used)]
-async fn generate_async_safe_nonce() -> String {
-    tokio::task::spawn_blocking(|| {
-        let mut rng = rand::thread_rng();
-        rng.gen_range(10_000_000..100_000_000).to_string()
-    })
-    .await
-    .expect("Failed to generate nonce, can't set CSP nonce")
+/// Generate 16 random bytes (128 bits) and encodes it as Base64
+/// See <https://www.w3.org/TR/CSP3/#security-nonces>
+fn generate_nonce() -> String {
+    let mut rng = rand::thread_rng();
+    let nonce_bytes: [u8; 16] = rng.gen();
+
+    STANDARD.encode(nonce_bytes)
 }
 
 /// Generates a nonce and sets it as the CSP Header and also
@@ -38,7 +39,7 @@ async fn generate_async_safe_nonce() -> String {
 /// and if it doesn't it's better to not run at all, then to run insecurely.
 #[allow(clippy::expect_used)]
 pub async fn set_csp_header(mut request: Request, next: Next) -> Response {
-    let nonce = generate_async_safe_nonce().await;
+    let nonce = generate_nonce();
     request.extensions_mut().insert(CspNonce {
         value: nonce.clone(),
     });
