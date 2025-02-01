@@ -133,7 +133,6 @@ pub(super) async fn reset(
     State(ctx): State<AppContext>,
     Form(params): Form<ResetParams>,
 ) -> Result<Response> {
-    println!("{:?}", &params.token);
     let Ok(user) = users::Model::find_by_reset_token(&ctx.db, &params.token).await else {
         // we don't want to expose our users email. if the email is invalid we still
         // returning success to the caller

@@ -16,8 +16,8 @@ pub struct CspNonce {
 /// Generate 16 random bytes (128 bits) and encodes it as Base64
 /// See <https://www.w3.org/TR/CSP3/#security-nonces>
 fn generate_nonce() -> String {
-    let mut rng = rand::thread_rng();
-    let nonce_bytes: [u8; 16] = rng.gen();
+    let mut rng = rand::rng();
+    let nonce_bytes: [u8; 16] = rng.random();
 
     STANDARD.encode(nonce_bytes)
 }
