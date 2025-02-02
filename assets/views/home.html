@@ -1,7 +1,7 @@
 {% extends "authenticated.html" %}
 {% block content %}
 <section>
-  <h1>You are {{ user.name }}!</h1>
+  <marquee><h1>You are {{ user.name }}!</h1></marquee>
   <p>{{ t(key="hello-world", lang="en-US") }}</p>
   <p>{{ t(key="hello-world", lang="de-DE") }}</p>
   <p>{{ t(key="fallback", lang="de-DE") }}</p>

@@ -1,11 +1,13 @@
 :root {
     --primary-color-hex: #fff59f;
     --box-shadow: #000;
+    --font-color: #000;
+    --element-background: #fff;
 }
 
 @media (prefers-color-scheme: dark) {
     html {
-        filter: invert(100%);
+        background: #001133 !important;
     }
 }
 
@@ -17,7 +19,7 @@
 }
 
 html {
-    color: #000;
+    color: var(--font-color);
     background: linear-gradient(-45deg, #ff9f9f, #afff9f, #9fffef, #ff9ff0);
     background-size: 400% 400%;
     animation: gradient 60s ease infinite;
@@ -76,7 +78,7 @@ section {
     background-size: 8px 8px;
     background-color: rgb(255, 255, 255);
     padding: 2rem;
-    background-color: #fff;
+    background-color: var(--element-background);
     border: 2px solid var(--box-shadow);
     box-shadow: 4px 4px 0 var(--box-shadow);
 }
@@ -158,8 +160,8 @@ button,
     font-weight: bold;
     text-align: center;
     text-decoration: none;
-    color: #000;
-    background-color: #fff;
+    color: var(--font-color);
+    background-color: var(--element-background);
     border: 2px solid var(--box-shadow);
     box-shadow: 4px 4px 0 var(--box-shadow);
     cursor: pointer;
@@ -179,8 +181,7 @@ button:disabled,
     top: 4px;
     left: 4px;
     cursor: not-allowed;
-    color: #777;
-    border: 2px solid #777;
+    opacity: 0.5;
     box-shadow: none !important;
 }
 
@@ -251,22 +252,22 @@ select[multiple] {
 
 .alert-info {
     background-color: #e7f5ff;
-    color: #000;
+    color: var(--font-color);
 }
 
 .alert-warning {
     background-color: #fff3cd;
-    color: #000;
+    color: var(--font-color);
 }
 
 .alert-danger {
     background-color: #f8d7da;
-    color: #000;
+    color: var(--font-color);
 }
 
 .alert-success {
     background-color: #edffe7;
-    color: #000;
+    color: var(--font-color);
 }
 
 /* Modals */
@@ -283,7 +284,7 @@ select[multiple] {
 }
 
 .modal-content {
-    background-color: #fff;
+    background-color: var(--element-background);
     padding: 2rem;
     border: 2px solid var(--box-shadow);
     box-shadow: 4px 4px 0 var(--box-shadow);
@@ -311,13 +312,13 @@ select[multiple] {
     border: 2px solid var(--box-shadow);
     box-shadow: 4px 4px 0 var(--box-shadow);
     padding: 1rem;
-    font-family: "Roboto Mono", monospace;
+    font-family: monospace;
     margin-bottom: 1rem;
 }
 
 /* Text Links */
 a {
-    color: #000;
+    color: var(--font-color);
     text-decoration: underline;
 }
 
