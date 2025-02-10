@@ -1,13 +1,20 @@
 :root {
+    --main-font: sans-serif;
     --primary-color-hex: #fff59f;
-    --box-shadow: #000;
-    --font-color: #000;
-    --element-background: #fff;
+    --box-shadow: #444;
+    --font-color: #444;
+    --element-background: #f4f4f4;
 }
 
 @media (prefers-color-scheme: dark) {
     html {
         background: #001133 !important;
+    }
+
+    :root {
+        --element-background: #0c0c0c;
+        --font-color: #eee;
+        --primary-color-hex: indigo;
     }
 }
 
@@ -23,12 +30,14 @@ html {
     background: linear-gradient(-45deg, #ff9f9f, #afff9f, #9fffef, #ff9ff0);
     background-size: 400% 400%;
     animation: gradient 60s ease infinite;
+    line-height: 1.6;
+    font-size: 18px;
 }
 
 html,
 body {
     height: 100%;
-    font-family: monospace;
+    font-family: var(--main-font);
 }
 
 @keyframes gradient {
@@ -67,16 +76,6 @@ p {
 }
 
 section {
-    background-image: radial-gradient(
-            rgb(240, 240, 240) 14.8%,
-            transparent 14.8%
-        ),
-        radial-gradient(rgb(240, 240, 240) 14.8%, transparent 14.8%);
-    background-position:
-        0px 0px,
-        4px 4px;
-    background-size: 8px 8px;
-    background-color: rgb(255, 255, 255);
     padding: 2rem;
     background-color: var(--element-background);
     border: 2px solid var(--box-shadow);
@@ -156,7 +155,7 @@ button,
     display: inline-block;
     padding: 0.75rem 1.5rem;
     font-size: 1rem;
-    font-family: monospace;
+    font-family: var(--main-font);
     font-weight: bold;
     text-align: center;
     text-decoration: none;
@@ -200,7 +199,7 @@ select {
     margin-bottom: 1rem;
     border: 2px solid var(--box-shadow);
     box-shadow: 4px 4px 0 var(--box-shadow);
-    font-family: monospace;
+    font-family: var(--main-font);
     font-size: 16px;
 }
 
@@ -312,7 +311,7 @@ select[multiple] {
     border: 2px solid var(--box-shadow);
     box-shadow: 4px 4px 0 var(--box-shadow);
     padding: 1rem;
-    font-family: monospace;
+    font-family: var(--main-font);
     margin-bottom: 1rem;
 }
 
