@@ -1,7 +1,7 @@
 use crate::{models::_entities::users::Model, web::security::CspNonce};
 use axum::{
-    response::{sse::Event, Sse},
     Extension,
+    response::{Sse, sse::Event},
 };
 use futures::stream::{self, Stream};
 use loco_rs::{controller::middleware::auth::JWTWithUser, prelude::*};

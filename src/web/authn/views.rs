@@ -66,11 +66,11 @@ pub struct LoginPageState {
     pub message: Option<String>,
 }
 
-pub(super) fn login_form(
-    v: &impl ViewRenderer,
+pub(super) fn login_form<T: ViewRenderer>(
+    v: &T,
     page_state: &LoginPageState,
     form: Option<&Form<LoginParams>>,
-) -> Result<impl IntoResponse> {
+) -> Result<impl IntoResponse + use<T>> {
     let form_state = form.as_ref().map_or_else(
         || LoginParams {
             email: String::new(),
@@ -94,21 +94,25 @@ pub struct ResetPasswordPageState {
     pub token: String,
 }
 
-pub(super) fn render_reset_password_form(
-    v: &impl ViewRenderer,
+pub(super) fn render_reset_password_form<T: ViewRenderer>(
+    v: &T,
     query_params: &ResetPasswordPageState,
-) -> Result<impl IntoResponse> {
+) -> Result<impl IntoResponse + use<T>> {
     format::render().view(v, "auth/reset.html", data!(query_params))
 }
 
-pub(super) fn signup_form(v: &impl ViewRenderer) -> Result<impl IntoResponse> {
+pub(super) fn signup_form<T: ViewRenderer>(v: &T) -> Result<impl IntoResponse + use<T>> {
     format::render().view(v, "auth/signup.html", data!({}))
 }
 
-pub(super) fn forgotten_password_form(v: &impl ViewRenderer) -> Result<impl IntoResponse> {
+pub(super) fn forgotten_password_form<T: ViewRenderer>(
+    v: &T,
+) -> Result<impl IntoResponse + use<T>> {
     format::render().view(v, "auth/forgot_password.html", data!({}))
 }
 
-pub(super) fn mail_sent_acknowledgement(v: &impl ViewRenderer) -> Result<impl IntoResponse> {
+pub(super) fn mail_sent_acknowledgement<T: ViewRenderer>(
+    v: &T,
+) -> Result<impl IntoResponse + use<T>> {
     format::render().view(v, "auth/check_mail.html", data!({}))
 }

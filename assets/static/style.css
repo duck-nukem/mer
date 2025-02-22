@@ -6,6 +6,7 @@
     --element-background: #f4f4f4;
 }
 
+/* disabling dark mode, but keep the css as a demonstration
 @media (prefers-color-scheme: dark) {
     html {
         background: #001133 !important;
@@ -17,6 +18,7 @@
         --primary-color-hex: indigo;
     }
 }
+*/
 
 /* Basic Reset */
 * {

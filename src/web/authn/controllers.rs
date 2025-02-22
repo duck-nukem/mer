@@ -7,15 +7,15 @@ use crate::{
     web::authn::views::CurrentResponse,
 };
 use axum::{
+    Form,
     body::Body,
     debug_handler,
     extract::Query,
     http::{
-        header::{LOCATION, SET_COOKIE},
         HeaderValue, StatusCode,
+        header::{LOCATION, SET_COOKIE},
     },
     response::Redirect,
-    Form,
 };
 use cookie::{Cookie, SameSite};
 use loco_rs::prelude::*;
@@ -151,9 +151,9 @@ pub(super) async fn reset(
 pub(super) async fn render_login_form(
     ViewEngine(v): ViewEngine<TeraView>,
     Query(query_params): Query<LoginPageState>,
-    form: Option<&Form<LoginParams>>,
+    form: Option<Form<LoginParams>>,
 ) -> Result<impl IntoResponse> {
-    super::views::login_form(&v, &query_params, form)
+    super::views::login_form(&v, &query_params, form.as_ref())
 }
 
 #[allow(clippy::unused_async)]
@@ -161,15 +161,11 @@ pub(super) async fn render_default_login_form(
     ViewEngine(v): ViewEngine<TeraView>,
     Query(query_params): Query<LoginPageState>,
 ) -> Result<impl IntoResponse> {
-    render_login_form(
-        ViewEngine(v),
-        Query(query_params),
-        Some(&Form(LoginParams {
-            email: String::new(),
-            password: String::new(),
-        })),
-    )
-    .await
+    let form = Form(LoginParams {
+        email: String::new(),
+        password: String::new(),
+    });
+    render_login_form(ViewEngine(v), Query(query_params), Some(form)).await
 }
 
 pub(super) async fn render_forgotten_password_form(
@@ -227,7 +223,7 @@ pub(super) async fn login(
                 status: Some(LoginPageStatus::ERROR),
                 message: Some(String::from("invalid_credentials")),
             }),
-            Some(&Form(params)),
+            Some(Form(params)),
         )
         .await
         .into_response());
@@ -241,7 +237,7 @@ pub(super) async fn login(
                 status: Some(LoginPageStatus::ERROR),
                 message: Some(String::from("invalid_credentials")),
             }),
-            Some(&Form(params)),
+            Some(Form(params)),
         )
         .await
         .into_response());

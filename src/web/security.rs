@@ -1,11 +1,11 @@
 use axum::{
     extract::Request,
-    http::{header::CONTENT_SECURITY_POLICY, HeaderValue},
+    http::{HeaderValue, header::CONTENT_SECURITY_POLICY},
     middleware::Next,
     response::Response,
 };
-use base64::engine::general_purpose::STANDARD;
 use base64::Engine;
+use base64::engine::general_purpose::STANDARD;
 use rand::Rng;
 
 #[derive(Clone, Debug)]
