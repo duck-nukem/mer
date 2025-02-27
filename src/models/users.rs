@@ -92,7 +92,7 @@ impl Model {
     /// When could not find user by the given token or DB query error
     pub async fn find_by_email(db: &DatabaseConnection, email: &str) -> ModelResult<Self> {
         let lowercase_email = decancer::cure!(&email.to_lowercase().as_str())
-            .map_err(|e| ModelError::Any(e.into()))?;
+            .map_err(|_| ModelError::Message(String::from("Invalid e-mail address")))?;
         let user = users::Entity::find()
             .filter(
                 model::query::condition()
@@ -111,7 +111,7 @@ impl Model {
     /// When could not find user or the user exists but hasn't verified their e-mail yet
     pub async fn find_by_verified_email(db: &DatabaseConnection, email: &str) -> ModelResult<Self> {
         let lowercase_email = decancer::cure!(&email.to_lowercase().as_str())
-            .map_err(|e| ModelError::Any(e.into()))?;
+            .map_err(|_| ModelError::Message(String::from("Invalid e-mail address")))?;
         if let Some(cached_user) = USER_CACHE.get(lowercase_email.as_str()).await {
             Ok(cached_user)
         } else {
@@ -276,7 +276,7 @@ impl Model {
     ) -> ModelResult<Self> {
         let txn = db.begin().await?;
         let lowercase_email = decancer::cure!(&params.email.to_lowercase().as_str())
-            .map_err(|e| ModelError::Any(e.into()))?;
+            .map_err(|_| ModelError::Message(String::from("Invalid e-mail address")))?;
 
         if users::Entity::find()
             .filter(
