@@ -91,10 +91,12 @@ impl Model {
     ///
     /// When could not find user by the given token or DB query error
     pub async fn find_by_email(db: &DatabaseConnection, email: &str) -> ModelResult<Self> {
+        let lowercase_email = decancer::cure!(&email.to_lowercase().as_str())
+            .map_err(|e| ModelError::Any(e.into()))?;
         let user = users::Entity::find()
             .filter(
                 model::query::condition()
-                    .eq(users::Column::Email, email)
+                    .eq(users::Column::Email, lowercase_email.as_str())
                     .build(),
             )
             .one(db)
