@@ -281,7 +281,7 @@ impl Model {
         if users::Entity::find()
             .filter(
                 model::query::condition()
-                    .eq(users::Column::Email, lowercase_email.clone().as_str())
+                    .eq(users::Column::Email, lowercase_email.as_str())
                     .build(),
             )
             .one(&txn)
