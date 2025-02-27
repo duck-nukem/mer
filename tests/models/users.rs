@@ -60,6 +60,71 @@ async fn can_create_with_password() {
         assert_debug_snapshot!(res);
     });
 }
+
+#[tokio::test]
+#[serial]
+async fn should_fail_if_email_exists_in_other_casing() {
+    configure_insta!();
+    let boot = boot_test::<App>()
+        .await
+        .expect("Failed to boot test application");
+    let params = RegisterParams {
+        email: "test@framework.com".to_string(),
+        password: "1234".to_string(),
+        name: "framework".to_string(),
+    };
+    let _ = Model::create_with_password(&boot.app_context.db, &params).await;
+
+    let same_params_with_alternative_email_casing = RegisterParams {
+        email: "TEST@FRAMEWORK.COM".to_string(),
+        password: "1234".to_string(),
+        name: "framework".to_string(),
+    };
+    let res = Model::create_with_password(
+        &boot.app_context.db,
+        &same_params_with_alternative_email_casing,
+    )
+    .await;
+
+    insta::with_settings!({
+        filters => cleanup_user_model()
+    }, {
+        assert!(res.is_err())
+    });
+}
+
+#[tokio::test]
+#[serial]
+async fn should_fail_on_homoglyph_registration_attempts() {
+    configure_insta!();
+    let boot = boot_test::<App>()
+        .await
+        .expect("Failed to boot test application");
+    let params = RegisterParams {
+        email: "test@framework.com".to_string(),
+        password: "1234".to_string(),
+        name: "framework".to_string(),
+    };
+    let _ = Model::create_with_password(&boot.app_context.db, &params).await;
+
+    let same_params_with_alternative_email_casing = RegisterParams {
+        email: "tésｔ@framework.com".to_string(),
+        password: "1234".to_string(),
+        name: "framework".to_string(),
+    };
+    let res = Model::create_with_password(
+        &boot.app_context.db,
+        &same_params_with_alternative_email_casing,
+    )
+    .await;
+
+    insta::with_settings!({
+        filters => cleanup_user_model()
+    }, {
+        assert!(res.is_err())
+    });
+}
+
 #[tokio::test]
 #[serial]
 async fn handle_create_with_password_with_duplicate() {

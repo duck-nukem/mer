@@ -67,6 +67,7 @@ moka = { version = "0.12", features = ["future"] }
 once_cell = { version = "1.20.2" }
 futures = { version = "0.3.31" }
 base64 = { version = "0.22.1" }
+decancer = "3.2.8" # prevent homoglyph attacks
 
 [[bin]]
 name = "mer-cli"
