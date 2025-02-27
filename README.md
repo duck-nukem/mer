@@ -34,6 +34,11 @@ implemented in the framework, so I left it at that.
 Mandatory requirement to use a strict CSP on all pages. The nonce is already generated and is exposed & accessible
 through the `Extension(nonce): Extension<CspNonce>` extractor
 
+#### Homoglyphs and case-sensitive e-mails
+
+A 3rd party library should deal with homoglyph attacks, and registration/login should work on a lowercase converted
+e-mail address.
+
 ### Session
 
 #### Flash messages
