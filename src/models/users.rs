@@ -108,13 +108,14 @@ impl Model {
     ///
     /// When could not find user or the user exists but hasn't verified their e-mail yet
     pub async fn find_by_verified_email(db: &DatabaseConnection, email: &str) -> ModelResult<Self> {
-        if let Some(cached_user) = USER_CACHE.get(email).await {
+        let lowercase_email = email.to_lowercase().to_string();
+        if let Some(cached_user) = USER_CACHE.get(&lowercase_email).await {
             Ok(cached_user)
         } else {
             let user = users::Entity::find()
                 .filter(
                     model::query::condition()
-                        .eq(users::Column::Email, email)
+                        .eq(users::Column::Email, &lowercase_email)
                         .is_not_null(users::Column::EmailVerifiedAt)
                         .build(),
                 )
@@ -122,9 +123,7 @@ impl Model {
                 .await?;
 
             if let Some(user) = user {
-                USER_CACHE
-                    .insert(user.email.to_string(), user.clone())
-                    .await;
+                USER_CACHE.insert(lowercase_email, user.clone()).await;
                 return Ok(user);
             }
             user.ok_or_else(|| ModelError::EntityNotFound)
@@ -271,11 +270,12 @@ impl Model {
         params: &RegisterParams,
     ) -> ModelResult<Self> {
         let txn = db.begin().await?;
+        let lowercase_email = params.email.to_lowercase();
 
         if users::Entity::find()
             .filter(
                 model::query::condition()
-                    .eq(users::Column::Email, &params.email)
+                    .eq(users::Column::Email, &lowercase_email)
                     .build(),
             )
             .one(&txn)
@@ -288,7 +288,7 @@ impl Model {
         let password_hash =
             hash::hash_password(&params.password).map_err(|e| ModelError::Any(e.into()))?;
         let user = users::ActiveModel {
-            email: ActiveValue::set(params.email.to_string()),
+            email: ActiveValue::set(lowercase_email),
             password: ActiveValue::set(password_hash),
             name: ActiveValue::set(params.name.to_string()),
             ..Default::default()
