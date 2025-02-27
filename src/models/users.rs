@@ -60,7 +60,7 @@ impl ActiveModelBehavior for super::_entities::users::ActiveModel {
     }
 
     async fn after_save<C>(model: Model, _db: &C, _insert: bool) -> Result<Model, DbErr> {
-        USER_CACHE.invalidate(&model.pid.clone().to_string()).await;
+        USER_CACHE.invalidate(&model.pid.to_string()).await;
         Ok(model)
     }
 }

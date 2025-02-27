@@ -77,7 +77,7 @@ impl AuthMailer {
                 to: user.email.to_string(),
                 locals: json!({
                   "name": user.name,
-                  "token": user.magic_link_token.clone().ok_or_else(|| Error::string(
+                  "token": user.magic_link_token.as_ref().ok_or_else(|| Error::string(
                             "the user model not contains magic link token",
                     ))?,
                   "host": ctx.config.server.full_url()
