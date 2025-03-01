@@ -44,7 +44,7 @@ pub async fn set_csp_header(mut request: Request, next: Next) -> Response {
         value: nonce.clone(),
     });
 
-    let header_value = format!("object-src 'none'; base-uri 'none'; script-src 'nonce-{nonce}'");
+    let header_value = format!("base-uri 'self'; object-src 'none'; script-src 'nonce-{nonce}'");
     let mut response = next.run(request).await;
     response.headers_mut().insert(
         CONTENT_SECURITY_POLICY,

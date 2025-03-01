@@ -5,7 +5,10 @@ use crate::web::{authn::middlewares::redirect_to_login_on_unauthorized, security
 /// Add your module routes here; common middlewares will be applied. See `with_middlewares`
 #[must_use]
 pub fn with_routes() -> Vec<Routes> {
-    vec![crate::web::dashboard::router::routes()]
+    vec![
+        crate::web::dashboard::router::routes(),
+        crate::web::workflow::router::routes(),
+    ]
 }
 
 /// Define the middlewares you'd want to apply by default to `with_routes`

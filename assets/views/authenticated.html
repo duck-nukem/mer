@@ -3,28 +3,39 @@
     <head>
         {% block head %}
         <meta charset="UTF-8" />
-        <meta name="theme-color" content="#0000ff">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=1" />
+        <meta name="theme-color" content="#0000ff" />
+        <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=1"
+        />
         <link rel="stylesheet" href="/static/style.css" />
         <title>{% block title %}{% endblock title %} - Mér</title>
         {% endblock head %}
     </head>
     <body ontouchstart class="container">
         <nav>
-            <section class="mobile-hidden"><a href="/" style="font-weight: bold">mér</a></section>
+            <section class="mobile-hidden">
+                <a href="/" style="font-weight: bold">mér</a>
+            </section>
             <section class="display: flex; justify-content: space-evenly;">
-                <a style="padding: 1rem; text-decoration: none" href="#">Feed</a>
-                <a style="padding: 1rem; text-decoration: none" href="#">Stats</a>
-                <a style="padding: 1rem; text-decoration: none" href="#">Admin</a>
+                <a style="padding: 1rem; text-decoration: none" href="/workflow"
+                    >Workflow</a
+                >
+                <a style="padding: 1rem; text-decoration: none" href="#"
+                    >Stats</a
+                >
+                <a style="padding: 1rem; text-decoration: none" href="#"
+                    >Admin</a
+                >
             </section>
             <form method="POST" action="/api/auth/logout">
                 <button style="height: 100%">Log out</button>
             </form>
         </nav>
-        <main style="position: relative; top: 4rem;">
-        {% block content %}
-        <!-- Placeholder comment -->
-        {% endblock content %}
+        <main style="position: relative; top: 4rem">
+            {% block content %}
+            <!-- Placeholder comment -->
+            {% endblock content %}
         </main>
     </body>
 </html>
